@@ -1,7 +1,9 @@
 use plotters::prelude::*;
 
-const TIME_STEP: f64 = 500.0; // s
-const STEPS: i32 = 1000;
+const TIME_STEP: f64 = 1.0; // s
+const STEPS: i32 = 500000;
+const ANIMATION_START: i32 = 0;
+const ANIMATION_END: i32 = 500000;
 
 #[derive(Clone, Debug)]
 struct Body {
@@ -100,6 +102,11 @@ fn main() {
         .unwrap();
 
     for step in steps.iter() {
+        if step.step < ANIMATION_START {
+            continue;
+        } else if step.step > ANIMATION_END {
+            break;
+        }
         let x0 = (step.bodies[0].position.x * 100.0).round() as i32;
         let y0 = (step.bodies[0].position.y * 100.0).round() as i32;
         let x1 = (step.bodies[1].position.x * 100.0).round() as i32;
