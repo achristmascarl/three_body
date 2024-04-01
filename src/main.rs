@@ -1,9 +1,9 @@
 use plotters::prelude::*;
 
-const TIME_STEP: f64 = 1.0; // s
-const STEPS: i32 = 60000;
-const ANIMATION_START: i32 = 30000;
-const ANIMATION_END: i32 = 500000;
+const TIME_STEP: f64 = 0.1; // s
+const STEPS: i32 = 600000;
+const ANIMATION_START: i32 = 300000;
+const ANIMATION_END: i32 = 400000;
 
 #[derive(Clone, Debug)]
 struct Body {
@@ -99,7 +99,8 @@ fn main() {
         } else if step.step > ANIMATION_END {
             break;
         }
-        let path = format!("images/{}.png", step.step);
+        // leading zeroes to maintain alphatbetical order for ffmpeg
+        let path = format!("images/{:0>8}.png", step.step);
         let area = BitMapBackend::new(&path, (100, 100)).into_drawing_area();
         let mut ctx = ChartBuilder::on(&area)
             .build_cartesian_2d(-500..500, -500..500)
