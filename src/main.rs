@@ -100,7 +100,7 @@ fn main() {
             break;
         }
         // leading zeroes to maintain alphatbetical order for ffmpeg
-        let path = format!("images/{:0>8}.png", step.step);
+        let path = format!("images/{:0>9}.png", step.step);
         let area = BitMapBackend::new(&path, (100, 100)).into_drawing_area();
         let mut ctx = ChartBuilder::on(&area)
             .build_cartesian_2d(-500..500, -500..500)
