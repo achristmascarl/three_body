@@ -1,8 +1,8 @@
 use plotters::prelude::*;
 
 const TIME_STEP: f64 = 1.0; // s
-const STEPS: i32 = 500000;
-const ANIMATION_START: i32 = 0;
+const STEPS: i32 = 60000;
+const ANIMATION_START: i32 = 30000;
 const ANIMATION_END: i32 = 500000;
 
 #[derive(Clone, Debug)]
@@ -93,30 +93,23 @@ fn main() {
     }
     println!("Finished simulating {} steps. Generating GIF...", STEPS);
 
-    // 5 second gif
-    let area = BitMapBackend::gif("three_body.gif", (100, 100), 1)
-        .unwrap()
-        .into_drawing_area();
-    let mut ctx = ChartBuilder::on(&area)
-        .build_cartesian_2d(-500..500, -500..500)
-        .unwrap();
-
     for step in steps.iter() {
         if step.step < ANIMATION_START {
             continue;
         } else if step.step > ANIMATION_END {
             break;
         }
+        let path = format!("images/{}.png", step.step);
+        let area = BitMapBackend::new(&path, (100, 100)).into_drawing_area();
+        let mut ctx = ChartBuilder::on(&area)
+            .build_cartesian_2d(-500..500, -500..500)
+            .unwrap();
         let x0 = (step.bodies[0].position.x * 100.0).round() as i32;
         let y0 = (step.bodies[0].position.y * 100.0).round() as i32;
         let x1 = (step.bodies[1].position.x * 100.0).round() as i32;
         let y1 = (step.bodies[1].position.y * 100.0).round() as i32;
         let x2 = (step.bodies[2].position.x * 100.0).round() as i32;
         let y2 = (step.bodies[2].position.y * 100.0).round() as i32;
-        println!(
-            "Scaled coordinates: ({}, {}), ({}, {}), ({}, {})",
-            x0, y0, x1, y1, x2, y2
-        );
 
         area.fill(&WHITE).unwrap();
         ctx.configure_mesh().draw().unwrap();
@@ -127,8 +120,12 @@ fn main() {
         ctx.draw_series(vec![Circle::new((x2, y2), 2, GREEN.filled())])
             .unwrap();
         area.present().unwrap();
-        if step.step % 100 == 0 {
+        if step.step % 500 == 0 {
             println!("Generating frame {}", step.step);
+            println!(
+                "Scaled coordinates: ({}, {}), ({}, {}), ({}, {})",
+                x0, y0, x1, y1, x2, y2
+            );
         }
     }
 }

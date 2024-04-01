@@ -1,2 +1,6 @@
 /target
 *.gif
+images/
+images/*
+*.mp4
+.DS_Store
