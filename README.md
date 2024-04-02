@@ -6,7 +6,7 @@ a very rudimentary simulation of the three-body problem. i was curious how far w
 
 ![three body problem image](three_body.png)
 
-i was also curious about what would happen if the polar coordinates of the bodies over time were translated into rgb values and animated over time; the results are below.
+i was also curious about what would happen if the polar coordinates of the bodies over time were translated into rgb values and animated; the results are below.
 
 **warning**: some of the transitions from this orbit are pretty abrupt, so there may be flashing colors.
 
