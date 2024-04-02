@@ -18,6 +18,6 @@ the starting positions for the graphics above are for periodic orbit F<sub>10</s
 
 This is what F<sub>10</sub> looks like when solved with ODE solver dop853 (according to the paper):
 
-<img src="./paper_f10.png" width="300px" alt="F10 from the paper"/>
+<img src="./paper_f10.png" width="450px" alt="F10 from the paper"/>
 
 as you can see, the error in the calculations above grow fairly noticeable after just 2 periods.
