@@ -1,4 +1,4 @@
-# three_body
+# ✨ three_body
 
 a very rudimentary simulation of the three-body problem. i was curious how far we could get with just euler's method and a small time step, and it turns out we can get something pretty visually interesting!
 
