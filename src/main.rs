@@ -12,6 +12,16 @@ struct Body {
     position: Coordinate,
 }
 
+trait Theta {
+    fn theta(&self) -> f64;
+}
+
+impl Theta for Body {
+    fn theta(&self) -> f64 {
+        self.position.y.atan2(self.position.x)
+    }
+}
+
 #[derive(Clone, Debug)]
 
 struct Coordinate {
@@ -104,6 +114,7 @@ fn main() {
     );
     graph_steps(&steps);
     animate_steps(&steps);
+    animate_color_steps(&steps);
     println!("Done!");
 }
 
@@ -188,6 +199,31 @@ fn animate_steps(steps: &[Step]) {
             ("sans-serif", 12),
         ))
         .unwrap();
+        area.present().unwrap();
+    }
+}
+
+fn animate_color_steps(steps: &[Step]) {
+    println!("Generating color animation...");
+    let area = BitMapBackend::gif("color.gif", (250, 250), 1000 / ANIMATION_FPS)
+        .unwrap()
+        .into_drawing_area();
+    for step in steps {
+        println!("Rendering color for frame {}", step.step);
+        let theta_blue = step.bodies[0].theta();
+        let theta_red = step.bodies[1].theta();
+        let theta_green = step.bodies[2].theta();
+        let r: u8 = ((255.0 * theta_red / 2.0 / std::f64::consts::PI)
+            .round()
+            .min(255.0)) as u8;
+        let g: u8 = ((255.0 * theta_green / 2.0 / std::f64::consts::PI)
+            .round()
+            .min(255.0)) as u8;
+        let b: u8 = ((255.0 * theta_blue / 2.0 / std::f64::consts::PI)
+            .round()
+            .min(255.0)) as u8;
+        let color = RGBColor(r, g, b);
+        area.fill(&color).unwrap();
         area.present().unwrap();
     }
 }
