@@ -1,9 +1,9 @@
 use plotters::prelude::*;
 
 const TIME_STEP: f64 = 0.01; // s
-const STEPS: u32 = 50000000;
+const STEPS: u32 = 100000000;
 const ANIMATION_FPS: u32 = 30;
-const ANIMATION_LENGTH: u32 = 20; // s
+const ANIMATION_LENGTH: u32 = 40; // s
 
 #[derive(Clone, Debug)]
 struct Body {
@@ -130,6 +130,8 @@ fn graph_steps(steps: &[Step]) {
             )
         }))
         .unwrap();
+    }
+    for n in 0..3 {
         ctx.draw_series([steps[0].clone()].iter().map(|step| {
             Circle::new(
                 (
