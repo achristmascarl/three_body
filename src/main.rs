@@ -1,9 +1,9 @@
 use plotters::prelude::*;
 
-const TIME_STEP: f64 = 0.1; // s
-const STEPS: i32 = 600000;
-const ANIMATION_START: i32 = 300000;
-const ANIMATION_END: i32 = 400000;
+const TIME_STEP: f64 = 0.01; // s
+const STEPS: u32 = 50000000;
+const ANIMATION_FPS: u32 = 30;
+const ANIMATION_LENGTH: u32 = 20; // s
 
 #[derive(Clone, Debug)]
 struct Body {
@@ -29,7 +29,7 @@ struct Velocity {
 #[derive(Debug, Clone)]
 struct Step {
     time: f64, // s from 0
-    step: i32, // step number
+    step: u32, // step number
     bodies: [Body; 3],
 }
 
@@ -88,45 +88,101 @@ fn main() {
         second_body = new_step.bodies[1].clone();
         third_body = new_step.bodies[2].clone();
 
-        println!("{:#?}", new_step);
-        steps.push(new_step);
-    }
-    println!("Finished simulating {} steps. Generating GIF...", STEPS);
-
-    for step in steps.iter() {
-        if step.step < ANIMATION_START {
-            continue;
-        } else if step.step > ANIMATION_END {
-            break;
+        if n % 1000 == 0 {
+            println!("Finished step {}", n);
         }
-        // leading zeroes to maintain alphatbetical order for ffmpeg
-        let path = format!("images/{:0>9}.png", step.step);
-        let area = BitMapBackend::new(&path, (100, 100)).into_drawing_area();
-        let mut ctx = ChartBuilder::on(&area)
-            .build_cartesian_2d(-500..500, -500..500)
-            .unwrap();
-        let x0 = (step.bodies[0].position.x * 100.0).round() as i32;
-        let y0 = (step.bodies[0].position.y * 100.0).round() as i32;
-        let x1 = (step.bodies[1].position.x * 100.0).round() as i32;
-        let y1 = (step.bodies[1].position.y * 100.0).round() as i32;
-        let x2 = (step.bodies[2].position.x * 100.0).round() as i32;
-        let y2 = (step.bodies[2].position.y * 100.0).round() as i32;
+        if n % (STEPS / (ANIMATION_LENGTH * ANIMATION_FPS)) == 0 {
+            steps.push(new_step);
+        }
+    }
+    println!(
+        "Finished simulating {} steps. Generating visualization...",
+        STEPS
+    );
+    graph_steps(&steps);
+    animate_steps(&steps);
+    println!("Done!");
+}
 
+fn graph_steps(steps: &[Step]) {
+    println!("Generating single PNG file...");
+    let area = BitMapBackend::new("three_body.png", (250, 250)).into_drawing_area();
+    let mut ctx = ChartBuilder::on(&area)
+        .build_cartesian_2d(-100..100, -100..100)
+        .unwrap();
+    area.fill(&WHITE).unwrap();
+    ctx.configure_mesh().draw().unwrap();
+    for n in 0..3 {
+        let color = match n {
+            0 => BLUE,
+            1 => RED,
+            2 => GREEN,
+            _ => BLACK,
+        };
+        ctx.draw_series(steps[1..].iter().map(|step| {
+            Circle::new(
+                (
+                    (step.bodies[n].position.x * 100.0).round() as i32,
+                    (step.bodies[n].position.y * 100.0).round() as i32,
+                ),
+                1,
+                color.filled(),
+            )
+        }))
+        .unwrap();
+        ctx.draw_series([steps[0].clone()].iter().map(|step| {
+            Circle::new(
+                (
+                    (step.bodies[n].position.x * 100.0).round() as i32,
+                    (step.bodies[n].position.y * 100.0).round() as i32,
+                ),
+                2,
+                BLACK.filled(),
+            )
+        }))
+        .unwrap();
+    }
+    area.present().unwrap();
+}
+
+fn animate_steps(steps: &[Step]) {
+    println!("Generating animation...");
+    let area = BitMapBackend::gif("three_body.gif", (250, 250), 1000 / ANIMATION_FPS)
+        .unwrap()
+        .into_drawing_area();
+    let mut ctx = ChartBuilder::on(&area)
+        .build_cartesian_2d(-100..100, -100..100)
+        .unwrap();
+    for step in steps {
+        println!("Rendering frame {}", step.step);
         area.fill(&WHITE).unwrap();
         ctx.configure_mesh().draw().unwrap();
-        ctx.draw_series(vec![Circle::new((x0, y0), 2, BLUE.filled())])
+
+        for n in 0..3 {
+            let color = match n {
+                0 => BLUE,
+                1 => RED,
+                2 => GREEN,
+                _ => BLACK,
+            };
+            ctx.draw_series([step.clone()].iter().map(|step| {
+                Circle::new(
+                    (
+                        (step.bodies[n].position.x * 100.0).round() as i32,
+                        (step.bodies[n].position.y * 100.0).round() as i32,
+                    ),
+                    2,
+                    color.filled(),
+                )
+            }))
             .unwrap();
-        ctx.draw_series(vec![Circle::new((x1, y1), 2, RED.filled())])
-            .unwrap();
-        ctx.draw_series(vec![Circle::new((x2, y2), 2, GREEN.filled())])
-            .unwrap();
-        area.present().unwrap();
-        if step.step % 500 == 0 {
-            println!("Generating frame {}", step.step);
-            println!(
-                "Scaled coordinates: ({}, {}), ({}, {}), ({}, {})",
-                x0, y0, x1, y1, x2, y2
-            );
         }
+        area.draw(&Text::new(
+            format!("T : {}", step.time.round() as u32),
+            (5, 5),
+            ("sans-serif", 12),
+        ))
+        .unwrap();
+        area.present().unwrap();
     }
 }
