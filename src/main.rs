@@ -38,7 +38,10 @@ fn main() {
     let mut first_body = Body {
         mass: 1.0,
         velocity: Velocity { vx: 0.0, vy: 0.0 },
-        position: Coordinate { x: 0.309, y: 0.42 },
+        position: Coordinate {
+            x: 0.3089693008,
+            y: 0.4236727692,
+        },
     };
 
     let mut second_body = Body {
